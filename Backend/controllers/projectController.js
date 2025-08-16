@@ -1,0 +1,69 @@
+const Project = require('../models/Project');
+
+exports.getProjects = async (req, res) => {
+  try {
+    const projects = await Project.find();
+    res.json(projects);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.createProject = async (req, res) => {
+  const { title, description, imageUrl, projectUrl } = req.body;
+
+  try {
+    const newProject = new Project({
+      title,
+      description,
+      imageUrl,
+      projectUrl
+    });
+
+    const project = await newProject.save();
+    res.json(project);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.updateProject = async (req, res) => {
+  const { title, description, imageUrl, projectUrl } = req.body;
+
+  try {
+    let project = await Project.findById(req.params.id);
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    project.title = title;
+    project.description = description;
+    project.imageUrl = imageUrl;
+    project.projectUrl = projectUrl;
+
+    project = await project.save();
+    res.json(project);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.deleteProject = async (req, res) => {
+  try {
+    let project = await Project.findById(req.params.id);
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    await project.remove();
+    res.json({ msg: 'Project removed' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
